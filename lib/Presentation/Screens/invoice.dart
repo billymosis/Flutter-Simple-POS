@@ -78,7 +78,7 @@ class IvoiceList extends StatelessWidget {
                     height: 10,
                   ),
                   Text(
-                    'Jl. Raya Kepuh No.3 📞 085649601601',
+                    'Jl. Raya Kepuh No.3 📞 085xxxxxx',
                     style: TextStyle(fontSize: 12),
                   ),
                   SizedBox(
