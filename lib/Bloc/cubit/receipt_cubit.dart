@@ -1,0 +1,25 @@
+import 'package:bloc/bloc.dart';
+import 'package:equatable/equatable.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:project_pos/Data/Data_Provider/Platform_Helper/shared.dart';
+import 'package:project_pos/Data/Data_Provider/database.dart';
+
+part 'receipt_state.dart';
+
+class ReceiptCubit extends Cubit<ReceiptState> {
+  ReceiptCubit() : super(ReceiptInitial());
+
+  SharedDatabase x = constructDb();
+  List<SalesTransaction> _myInvoice = [];
+  SalesTransaction? _currentInvoice;
+
+  void getAllInvoiceItems() async {
+    _myInvoice = await x.allSalesEntries();
+    emit(ReceiptInitial(invoice: _myInvoice, currentInvoice: _currentInvoice));
+  }
+
+  void getInvoiceByID(int id) async {
+    _currentInvoice = await x.selectInvoicetById(id);
+    emit(ReceiptInitial(invoice: _myInvoice, currentInvoice: _currentInvoice));
+  }
+}

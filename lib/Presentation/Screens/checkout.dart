@@ -6,7 +6,9 @@ class CheckOutScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
         drawer: DrawerWidget(),
-        appBar: MainAppBar(),
+        appBar: MainAppBar(
+          title: 'Kasir',
+        ),
         body: Container(
           child: Row(
             children: [

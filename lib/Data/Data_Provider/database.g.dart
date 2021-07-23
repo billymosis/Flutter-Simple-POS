@@ -632,13 +632,19 @@ class $ProductsInTransactionsTable extends ProductsInTransactions
 class SalesTransaction extends DataClass
     implements Insertable<SalesTransaction> {
   final int transactionId;
+  final String customer;
   final double totalPrice;
+  final double payment;
+  final bool paymentStatus;
   final DateTime createdAt;
   final DateTime updatedAt;
   final String note;
   SalesTransaction(
       {required this.transactionId,
+      required this.customer,
       required this.totalPrice,
+      required this.payment,
+      required this.paymentStatus,
       required this.createdAt,
       required this.updatedAt,
       required this.note});
@@ -649,8 +655,14 @@ class SalesTransaction extends DataClass
     return SalesTransaction(
       transactionId: const IntType()
           .mapFromDatabaseResponse(data['${effectivePrefix}transaction_id'])!,
+      customer: const StringType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}customer'])!,
       totalPrice: const RealType()
           .mapFromDatabaseResponse(data['${effectivePrefix}total_price'])!,
+      payment: const RealType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}payment'])!,
+      paymentStatus: const BoolType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}payment_status'])!,
       createdAt: const DateTimeType()
           .mapFromDatabaseResponse(data['${effectivePrefix}created_at'])!,
       updatedAt: const DateTimeType()
@@ -663,7 +675,10 @@ class SalesTransaction extends DataClass
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['transaction_id'] = Variable<int>(transactionId);
+    map['customer'] = Variable<String>(customer);
     map['total_price'] = Variable<double>(totalPrice);
+    map['payment'] = Variable<double>(payment);
+    map['payment_status'] = Variable<bool>(paymentStatus);
     map['created_at'] = Variable<DateTime>(createdAt);
     map['updated_at'] = Variable<DateTime>(updatedAt);
     map['note'] = Variable<String>(note);
@@ -673,7 +688,10 @@ class SalesTransaction extends DataClass
   SalesTransactionsCompanion toCompanion(bool nullToAbsent) {
     return SalesTransactionsCompanion(
       transactionId: Value(transactionId),
+      customer: Value(customer),
       totalPrice: Value(totalPrice),
+      payment: Value(payment),
+      paymentStatus: Value(paymentStatus),
       createdAt: Value(createdAt),
       updatedAt: Value(updatedAt),
       note: Value(note),
@@ -685,7 +703,10 @@ class SalesTransaction extends DataClass
     serializer ??= moorRuntimeOptions.defaultSerializer;
     return SalesTransaction(
       transactionId: serializer.fromJson<int>(json['transactionId']),
+      customer: serializer.fromJson<String>(json['customer']),
       totalPrice: serializer.fromJson<double>(json['totalPrice']),
+      payment: serializer.fromJson<double>(json['payment']),
+      paymentStatus: serializer.fromJson<bool>(json['paymentStatus']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
       note: serializer.fromJson<String>(json['note']),
@@ -696,7 +717,10 @@ class SalesTransaction extends DataClass
     serializer ??= moorRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'transactionId': serializer.toJson<int>(transactionId),
+      'customer': serializer.toJson<String>(customer),
       'totalPrice': serializer.toJson<double>(totalPrice),
+      'payment': serializer.toJson<double>(payment),
+      'paymentStatus': serializer.toJson<bool>(paymentStatus),
       'createdAt': serializer.toJson<DateTime>(createdAt),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
       'note': serializer.toJson<String>(note),
@@ -705,13 +729,19 @@ class SalesTransaction extends DataClass
 
   SalesTransaction copyWith(
           {int? transactionId,
+          String? customer,
           double? totalPrice,
+          double? payment,
+          bool? paymentStatus,
           DateTime? createdAt,
           DateTime? updatedAt,
           String? note}) =>
       SalesTransaction(
         transactionId: transactionId ?? this.transactionId,
+        customer: customer ?? this.customer,
         totalPrice: totalPrice ?? this.totalPrice,
+        payment: payment ?? this.payment,
+        paymentStatus: paymentStatus ?? this.paymentStatus,
         createdAt: createdAt ?? this.createdAt,
         updatedAt: updatedAt ?? this.updatedAt,
         note: note ?? this.note,
@@ -720,7 +750,10 @@ class SalesTransaction extends DataClass
   String toString() {
     return (StringBuffer('SalesTransaction(')
           ..write('transactionId: $transactionId, ')
+          ..write('customer: $customer, ')
           ..write('totalPrice: $totalPrice, ')
+          ..write('payment: $payment, ')
+          ..write('paymentStatus: $paymentStatus, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('note: $note')
@@ -732,15 +765,24 @@ class SalesTransaction extends DataClass
   int get hashCode => $mrjf($mrjc(
       transactionId.hashCode,
       $mrjc(
-          totalPrice.hashCode,
+          customer.hashCode,
           $mrjc(
-              createdAt.hashCode, $mrjc(updatedAt.hashCode, note.hashCode)))));
+              totalPrice.hashCode,
+              $mrjc(
+                  payment.hashCode,
+                  $mrjc(
+                      paymentStatus.hashCode,
+                      $mrjc(createdAt.hashCode,
+                          $mrjc(updatedAt.hashCode, note.hashCode))))))));
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is SalesTransaction &&
           other.transactionId == this.transactionId &&
+          other.customer == this.customer &&
           other.totalPrice == this.totalPrice &&
+          other.payment == this.payment &&
+          other.paymentStatus == this.paymentStatus &&
           other.createdAt == this.createdAt &&
           other.updatedAt == this.updatedAt &&
           other.note == this.note);
@@ -748,35 +790,53 @@ class SalesTransaction extends DataClass
 
 class SalesTransactionsCompanion extends UpdateCompanion<SalesTransaction> {
   final Value<int> transactionId;
+  final Value<String> customer;
   final Value<double> totalPrice;
+  final Value<double> payment;
+  final Value<bool> paymentStatus;
   final Value<DateTime> createdAt;
   final Value<DateTime> updatedAt;
   final Value<String> note;
   const SalesTransactionsCompanion({
     this.transactionId = const Value.absent(),
+    this.customer = const Value.absent(),
     this.totalPrice = const Value.absent(),
+    this.payment = const Value.absent(),
+    this.paymentStatus = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
     this.note = const Value.absent(),
   });
   SalesTransactionsCompanion.insert({
     this.transactionId = const Value.absent(),
+    required String customer,
     required double totalPrice,
+    required double payment,
+    required bool paymentStatus,
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
     required String note,
-  })  : totalPrice = Value(totalPrice),
+  })  : customer = Value(customer),
+        totalPrice = Value(totalPrice),
+        payment = Value(payment),
+        paymentStatus = Value(paymentStatus),
         note = Value(note);
   static Insertable<SalesTransaction> custom({
     Expression<int>? transactionId,
+    Expression<String>? customer,
     Expression<double>? totalPrice,
+    Expression<double>? payment,
+    Expression<bool>? paymentStatus,
     Expression<DateTime>? createdAt,
     Expression<DateTime>? updatedAt,
     Expression<String>? note,
   }) {
     return RawValuesInsertable({
       if (transactionId != null) 'transaction_id': transactionId,
+      if (customer != null) 'customer': customer,
       if (totalPrice != null) 'total_price': totalPrice,
+      if (payment != null) 'payment': payment,
+      if (paymentStatus != null) 'payment_status': paymentStatus,
       if (createdAt != null) 'created_at': createdAt,
       if (updatedAt != null) 'updated_at': updatedAt,
       if (note != null) 'note': note,
@@ -785,13 +845,19 @@ class SalesTransactionsCompanion extends UpdateCompanion<SalesTransaction> {
 
   SalesTransactionsCompanion copyWith(
       {Value<int>? transactionId,
+      Value<String>? customer,
       Value<double>? totalPrice,
+      Value<double>? payment,
+      Value<bool>? paymentStatus,
       Value<DateTime>? createdAt,
       Value<DateTime>? updatedAt,
       Value<String>? note}) {
     return SalesTransactionsCompanion(
       transactionId: transactionId ?? this.transactionId,
+      customer: customer ?? this.customer,
       totalPrice: totalPrice ?? this.totalPrice,
+      payment: payment ?? this.payment,
+      paymentStatus: paymentStatus ?? this.paymentStatus,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       note: note ?? this.note,
@@ -804,8 +870,17 @@ class SalesTransactionsCompanion extends UpdateCompanion<SalesTransaction> {
     if (transactionId.present) {
       map['transaction_id'] = Variable<int>(transactionId.value);
     }
+    if (customer.present) {
+      map['customer'] = Variable<String>(customer.value);
+    }
     if (totalPrice.present) {
       map['total_price'] = Variable<double>(totalPrice.value);
+    }
+    if (payment.present) {
+      map['payment'] = Variable<double>(payment.value);
+    }
+    if (paymentStatus.present) {
+      map['payment_status'] = Variable<bool>(paymentStatus.value);
     }
     if (createdAt.present) {
       map['created_at'] = Variable<DateTime>(createdAt.value);
@@ -823,7 +898,10 @@ class SalesTransactionsCompanion extends UpdateCompanion<SalesTransaction> {
   String toString() {
     return (StringBuffer('SalesTransactionsCompanion(')
           ..write('transactionId: $transactionId, ')
+          ..write('customer: $customer, ')
           ..write('totalPrice: $totalPrice, ')
+          ..write('payment: $payment, ')
+          ..write('paymentStatus: $paymentStatus, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('note: $note')
@@ -844,10 +922,25 @@ class $SalesTransactionsTable extends SalesTransactions
       typeName: 'INTEGER',
       requiredDuringInsert: false,
       defaultConstraints: 'PRIMARY KEY AUTOINCREMENT');
+  final VerificationMeta _customerMeta = const VerificationMeta('customer');
+  late final GeneratedColumn<String?> customer = GeneratedColumn<String?>(
+      'customer', aliasedName, false,
+      typeName: 'TEXT', requiredDuringInsert: true);
   final VerificationMeta _totalPriceMeta = const VerificationMeta('totalPrice');
   late final GeneratedColumn<double?> totalPrice = GeneratedColumn<double?>(
       'total_price', aliasedName, false,
       typeName: 'REAL', requiredDuringInsert: true);
+  final VerificationMeta _paymentMeta = const VerificationMeta('payment');
+  late final GeneratedColumn<double?> payment = GeneratedColumn<double?>(
+      'payment', aliasedName, false,
+      typeName: 'REAL', requiredDuringInsert: true);
+  final VerificationMeta _paymentStatusMeta =
+      const VerificationMeta('paymentStatus');
+  late final GeneratedColumn<bool?> paymentStatus = GeneratedColumn<bool?>(
+      'payment_status', aliasedName, false,
+      typeName: 'INTEGER',
+      requiredDuringInsert: true,
+      defaultConstraints: 'CHECK (payment_status IN (0, 1))');
   final VerificationMeta _createdAtMeta = const VerificationMeta('createdAt');
   late final GeneratedColumn<DateTime?> createdAt = GeneratedColumn<DateTime?>(
       'created_at', aliasedName, false,
@@ -865,8 +958,16 @@ class $SalesTransactionsTable extends SalesTransactions
       'note', aliasedName, false,
       typeName: 'TEXT', requiredDuringInsert: true);
   @override
-  List<GeneratedColumn> get $columns =>
-      [transactionId, totalPrice, createdAt, updatedAt, note];
+  List<GeneratedColumn> get $columns => [
+        transactionId,
+        customer,
+        totalPrice,
+        payment,
+        paymentStatus,
+        createdAt,
+        updatedAt,
+        note
+      ];
   @override
   String get aliasedName => _alias ?? 'sales_transactions';
   @override
@@ -882,6 +983,12 @@ class $SalesTransactionsTable extends SalesTransactions
           transactionId.isAcceptableOrUnknown(
               data['transaction_id']!, _transactionIdMeta));
     }
+    if (data.containsKey('customer')) {
+      context.handle(_customerMeta,
+          customer.isAcceptableOrUnknown(data['customer']!, _customerMeta));
+    } else if (isInserting) {
+      context.missing(_customerMeta);
+    }
     if (data.containsKey('total_price')) {
       context.handle(
           _totalPriceMeta,
@@ -889,6 +996,20 @@ class $SalesTransactionsTable extends SalesTransactions
               data['total_price']!, _totalPriceMeta));
     } else if (isInserting) {
       context.missing(_totalPriceMeta);
+    }
+    if (data.containsKey('payment')) {
+      context.handle(_paymentMeta,
+          payment.isAcceptableOrUnknown(data['payment']!, _paymentMeta));
+    } else if (isInserting) {
+      context.missing(_paymentMeta);
+    }
+    if (data.containsKey('payment_status')) {
+      context.handle(
+          _paymentStatusMeta,
+          paymentStatus.isAcceptableOrUnknown(
+              data['payment_status']!, _paymentStatusMeta));
+    } else if (isInserting) {
+      context.missing(_paymentStatusMeta);
     }
     if (data.containsKey('created_at')) {
       context.handle(_createdAtMeta,

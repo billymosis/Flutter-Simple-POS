@@ -133,7 +133,8 @@ class _AddorEditState extends State<AddorEdit> {
                           initialValue: widget.isEditing
                               ? widget.productsCompanion!.price.value.toString()
                               : null,
-                          keyboardType: TextInputType.number,
+                          keyboardType:
+                              TextInputType.numberWithOptions(decimal: true),
                           onSaved: (newValue) => _price = int.parse(newValue!),
                           decoration:
                               InputDecoration(labelText: 'Harga per satuan')),

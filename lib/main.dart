@@ -2,9 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:project_pos/Bloc/cubit/cart_cubit.dart';
 import 'package:project_pos/Bloc/cubit/form_cubit.dart';
-import 'package:project_pos/Bloc/cubit/invoice_cubit.dart';
+import 'package:project_pos/Bloc/cubit/receipt_cubit.dart';
 import 'package:project_pos/Bloc/cubit/products_cubit.dart';
-import 'package:project_pos/Data/Data_Provider/database.dart';
 import 'package:project_pos/router.dart';
 
 void main() {
@@ -22,7 +21,7 @@ class MyApp extends StatelessWidget {
           create: (context) => CartCubit(),
         ),
         BlocProvider(
-          create: (context) => InvoiceCubit(),
+          create: (context) => ReceiptCubit(),
         ),
         BlocProvider(
           create: (context) => FormCubit(),

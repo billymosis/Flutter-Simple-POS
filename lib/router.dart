@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:project_pos/Bloc/cubit/invoice_cubit.dart';
 import 'package:project_pos/Data/Data_Provider/database.dart';
 import 'package:project_pos/Presentation/Screens/addoredit.dart';
 import 'package:project_pos/Presentation/Screens/screens.dart';
@@ -18,7 +16,6 @@ class AppRouter {
         });
       case '/invoice':
         return MaterialPageRoute(builder: (context) {
-          BlocProvider.of<InvoiceCubit>(context).getAllInvoiceItems();
           return InvoiceScreen();
         });
       case '/add_product':
@@ -30,9 +27,6 @@ class AppRouter {
         return MaterialPageRoute(
             settings: settings,
             builder: (context) {
-              var x = ModalRoute.of(context)!.settings.arguments
-                  as ProductsCompanion;
-              print(x);
               final args = ModalRoute.of(context)!.settings.arguments
                   as ProductsCompanion;
               return AddorEdit(

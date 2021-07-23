@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
 import 'package:moor/moor.dart' as moor;
 import 'package:project_pos/Bloc/cubit/cart_cubit.dart';
 import 'package:project_pos/Bloc/cubit/products_cubit.dart';
@@ -18,7 +19,7 @@ class ItemGrid extends StatelessWidget {
         var mystate = state as ProductsInitial;
         return GridView.builder(
           gridDelegate:
-              SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 6),
+              SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 5),
           itemCount: mystate.products.length,
           itemBuilder: (context, index) => _GridContainer(
             index: index,
@@ -43,7 +44,12 @@ class _GridContainer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     double _counter = 1;
-    return GridTile(
+    final numberFormat =
+        NumberFormat.simpleCurrency(locale: 'id_ID', decimalDigits: 0);
+    return Container(
+      margin: EdgeInsets.all(10),
+      decoration:
+          BoxDecoration(border: Border.all(color: Colors.grey.shade300)),
       child: InkResponse(
         onTap: () {
           var z = ProductsInTransactionsCompanion.insert(
@@ -65,11 +71,26 @@ class _GridContainer extends StatelessWidget {
             _counter = 1;
           }
         },
-        child: Container(
-          margin: EdgeInsets.all(10),
-          decoration:
-              BoxDecoration(border: Border.all(color: Colors.grey.shade300)),
-          child: Center(child: Text(state.products[index].productName)),
+        child: Column(
+          children: [
+            Expanded(
+              flex: 8,
+              child: Container(
+                  color: Colors.grey[100],
+                  alignment: Alignment.center,
+                  child: Text(state.products[index].productName)),
+            ),
+            Expanded(
+              flex: 2,
+              child: Container(
+                  color: Colors.grey[300],
+                  alignment: Alignment.center,
+                  child: Text(
+                    '${numberFormat.format(state.products[index].price)} / ${state.products[index].uom}',
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 10),
+                  )),
+            )
+          ],
         ),
       ),
     );

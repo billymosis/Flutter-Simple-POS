@@ -34,7 +34,10 @@ class ProductsInTransactions extends Table {
 
 class SalesTransactions extends Table {
   IntColumn get transactionId => integer().autoIncrement()();
+  TextColumn get customer => text()();
   RealColumn get totalPrice => real()();
+  RealColumn get payment => real()();
+  BoolColumn get paymentStatus => boolean()();
   DateTimeColumn get createdAt =>
       dateTime().clientDefault(() => DateTime.now().toUtc())();
   DateTimeColumn get updatedAt =>
@@ -97,34 +100,57 @@ class SharedDatabase extends _$SharedDatabase {
 
   /// SALES TRANSACTION
 
-  Future<List<SalesTransaction>> get allSalesEntries =>
-      select(salesTransactions).get();
+  Future<List<SalesTransaction>> allSalesEntries() {
+    return (select(salesTransactions)).get();
+  }
 
   Future<int> addSales(SalesTransactionsCompanion entry) {
     return into(salesTransactions).insert(entry);
   }
 
-  Future<int> countSales() async {
-    final salesCount = salesTransactions.transactionId.count();
-    final query =
-        await select(salesTransactions).addColumns([salesCount]).get();
-    return query.first.read(salesCount);
+  Future<SalesTransaction> selectInvoicetById(int id) {
+    return (select(salesTransactions)
+          ..where((tbl) => tbl.transactionId.equals(id)))
+        .getSingle();
   }
 
   @override
-  int get schemaVersion => 9;
+  int get schemaVersion => 10;
 
   @override
-  MigrationStrategy get migration => MigrationStrategy(onCreate: (Migrator m) {
-        m.deleteTable(salesTransactions.actualTableName);
-        m.deleteTable(products.actualTableName);
-        m.deleteTable(productsInTransactions.actualTableName);
-        return m.createAll();
+  MigrationStrategy get migration =>
+      MigrationStrategy(onCreate: (Migrator m) async {
+        // await m.deleteTable(salesTransactions.actualTableName);
+        // await m.deleteTable(products.actualTableName);
+        // await m.deleteTable(productsInTransactions.actualTableName);
+        await m.createAll();
+        await m.createTrigger(Trigger('''
+        CREATE TRIGGER updated_at_trigger 
+        AFTER UPDATE
+        ON products
+        FOR EACH ROW
+        WHEN NEW.updated_at = OLD.updated_at
+          BEGIN
+            UPDATE products SET updated_at = (strftime('%s','now'))
+          WHERE id == OLD.id;
+        END;
+        ''', 'x'));
+        await m.createTrigger(Trigger('''
+        CREATE TRIGGER updated_at_sales_transactions
+        AFTER UPDATE
+        ON sales_transactions
+        FOR EACH ROW
+        WHEN NEW.updated_at = OLD.updated_at
+          BEGIN
+            UPDATE sales_transactions SET updated_at = (strftime('%s','now'))
+          WHERE transaction_id == OLD.transaction_id;
+        END;
+        ''', 'y'));
       }, onUpgrade: (Migrator m, int from, int to) async {
         if (from == 1) {
-          m.deleteTable(salesTransactions.actualTableName);
-          m.deleteTable(products.actualTableName);
-          m.deleteTable(productsInTransactions.actualTableName);
+          await m.deleteTable(salesTransactions.actualTableName);
+          await m.deleteTable(products.actualTableName);
+          await m.deleteTable(productsInTransactions.actualTableName);
           await m.createAll();
         }
       });

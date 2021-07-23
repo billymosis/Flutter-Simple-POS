@@ -29,13 +29,13 @@ class DrawerWidget extends StatelessWidget {
               Navigator.of(context).pushNamed('/');
             },
             leading: Icon(Icons.shopping_cart),
-            title: Text('Checkout')),
+            title: Text('Cashier')),
         ListTile(
             onTap: () {
               Navigator.pushNamed(context, '/invoice');
             },
             leading: Icon(Icons.contact_page),
-            title: Text('Invoices')),
+            title: Text('Receipts')),
         ListTile(
             onTap: () {
               Navigator.pushNamed(context, '/products');
