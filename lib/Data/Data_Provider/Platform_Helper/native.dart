@@ -11,7 +11,7 @@ SharedDatabase constructDb() {
   final db = LazyDatabase(() async {
     final dbFolder = await getApplicationDocumentsDirectory();
     final file = File(p.join(dbFolder.path, 'db.sqlite'));
-    return VmDatabase(file, logStatements: true);
+    return VmDatabase(file, logStatements: false);
   });
   return SharedDatabase(db);
 }

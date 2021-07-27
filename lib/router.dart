@@ -11,13 +11,9 @@ class AppRouter {
           builder: (context) => CheckOutScreen(),
         );
       case '/products':
-        return MaterialPageRoute(builder: (context) {
-          return ProductsScreen();
-        });
+        return MaterialPageRoute(builder: (context) => ProductsScreen());
       case '/invoice':
-        return MaterialPageRoute(builder: (context) {
-          return InvoiceScreen();
-        });
+        return MaterialPageRoute(builder: (context) => InvoiceScreen());
       case '/add_product':
         return MaterialPageRoute(
             builder: (context) => AddorEdit(

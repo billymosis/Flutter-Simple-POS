@@ -1,14 +1,13 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:meta/meta.dart';
-import 'package:project_pos/Data/Data_Provider/Platform_Helper/shared.dart';
 import 'package:project_pos/Data/Data_Provider/database.dart';
 
 part 'products_state.dart';
 
 class ProductsCubit extends Cubit<ProductsState> {
   ProductsCubit() : super(ProductsInitial());
-  SharedDatabase x = constructDb();
+  var x = SharedDatabase.x;
 
   void getAllProducts() async {
     var z = await x.allProductEntries;

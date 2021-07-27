@@ -38,6 +38,7 @@ dependencies:
   moor_db_viewer: ^4.3.0
   shared_preferences: ^2.0.6
   intl: ^0.17.0
+  adaptive_breakpoints: ^0.0.5
 
 dev_dependencies:
   flutter_test:

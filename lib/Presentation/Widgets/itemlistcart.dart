@@ -6,6 +6,7 @@ import 'package:project_pos/Bloc/cubit/cart_cubit.dart';
 import 'package:project_pos/Bloc/cubit/receipt_cubit.dart';
 import 'package:project_pos/Bloc/cubit/products_cubit.dart';
 import 'package:project_pos/Data/Data_Provider/database.dart';
+import 'package:project_pos/responsive.dart';
 
 class ItemListCart extends StatelessWidget {
   final numberFormat =
@@ -16,224 +17,255 @@ class ItemListCart extends StatelessWidget {
       padding: EdgeInsets.fromLTRB(0, 0, 20, 0),
       child: Column(
         children: [
+          HeaderCartList(),
           Container(
-            decoration: BoxDecoration(border: Border(bottom: BorderSide())),
-            padding: EdgeInsets.fromLTRB(10, 0, 10, 0),
-            child: BlocBuilder<CartCubit, CartState>(
-              builder: (context, state) {
-                var mystate = state as CartInitial;
-                String nama = mystate.customer == ''
-                    ? 'Tambah Nama Pelanggan'
-                    : mystate.customer;
-                return DropdownButton<String>(
-                  isExpanded: true,
-                  value: nama,
-                  icon: const Icon(Icons.arrow_downward),
-                  iconSize: 24,
-                  underline: Container(
-                    height: 2,
-                  ),
-                  onChanged: (String? newValue) {
-                    if (newValue == nama) {
-                      customerDialog(context, mystate, nama);
-                      nama = newValue ?? 'Tanpa Nama';
-                    } else {
-                      BlocProvider.of<CartCubit>(context).clearCart();
-                    }
-                  },
-                  items: <String>[nama, 'Clear']
-                      .map<DropdownMenuItem<String>>((String value) {
-                    return DropdownMenuItem<String>(
-                      value: value,
-                      child: Text(value),
-                    );
-                  }).toList(),
-                );
-              },
-            ),
+            child: Expanded(child: SideCartList()),
           ),
-          Container(
-            child: Expanded(child: CartList()),
-          ),
-          Container(
-              width: double.infinity,
-              height: 30,
-              child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(20, 0, 0, 0),
-                      child: Text('Total',
-                          style: TextStyle(
-                              fontSize: 20, fontWeight: FontWeight.bold)),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(0, 0, 20, 0),
-                      child: BlocBuilder<CartCubit, CartState>(
-                        builder: (context, state) {
-                          var price = (BlocProvider.of<CartCubit>(context).state
-                                  as CartInitial)
-                              .totalPrice;
-                          return Text(
-                            '${numberFormat.format(price)}',
-                            style: TextStyle(
-                                fontSize: 20, fontWeight: FontWeight.bold),
-                          );
-                        },
-                      ),
-                    )
-                  ])),
-          Container(
-            height: 40,
-            color: Colors.blue,
-            width: double.infinity,
-            margin: EdgeInsets.all(5),
-            child: TextButton(
-                onPressed: () {
-                  paymentDialog(context);
-                },
-                child: Text(
-                  'BAYAR!',
-                  style: TextStyle(
-                      color: Colors.white, fontWeight: FontWeight.bold),
-                )),
-          )
+          CartTotalPrice(numberFormat: numberFormat),
+          CartPayButton()
         ],
       ),
     );
   }
+}
 
-  Future<dynamic> paymentDialog(BuildContext context) {
-    final numberFormat =
-        NumberFormat.simpleCurrency(locale: 'id_ID', decimalDigits: 0);
-    return showDialog(
-      context: context,
-      builder: (context) {
-        BlocProvider.of<CartCubit>(context).setPayment(0);
-        var _pembayaran = TextEditingController();
-        return Scaffold(
-          appBar: AppBar(),
-          body: Container(
-            child: Row(
-              children: [
-                Expanded(
-                  flex: 3,
-                  child: CartList(),
-                ),
-                Expanded(
-                    flex: 7,
-                    child: SingleChildScrollView(
-                      child: Container(
-                        child: Padding(
-                          padding: const EdgeInsets.fromLTRB(20, 30, 20, 0),
-                          child: BlocBuilder<CartCubit, CartState>(
-                            builder: (context, state) {
-                              var _mystate = (state as CartInitial);
-                              _pembayaran.text = _mystate.payment.toString();
-                              print(_mystate.customer);
-                              return Column(
-                                children: [
-                                  Text(
-                                    '${numberFormat.format(_mystate.totalPrice)}',
-                                    style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 40),
+Future<dynamic> paymentDialog(BuildContext context) {
+  final numberFormat =
+      NumberFormat.simpleCurrency(locale: 'id_ID', decimalDigits: 0);
+  return showDialog(
+    context: context,
+    builder: (context) {
+      BlocProvider.of<CartCubit>(context).setPayment(0);
+      var _pembayaran = TextEditingController();
+      return Scaffold(
+        appBar: AppBar(),
+        body: Container(
+          child: Row(
+            children: [
+              Responsive.isDisplayTablet(context)
+                  ? Expanded(
+                      flex: 3,
+                      child: SideCartList(),
+                    )
+                  : Container(),
+              Expanded(
+                  flex: 7,
+                  child: SingleChildScrollView(
+                    child: Container(
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(20, 30, 20, 0),
+                        child: BlocBuilder<CartCubit, CartState>(
+                          builder: (context, state) {
+                            var _mystate = (state as CartInitial);
+                            _pembayaran.text = _mystate.payment.toString();
+                            return Column(
+                              children: [
+                                Text(
+                                  '${numberFormat.format(_mystate.totalPrice)}',
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 40),
+                                ),
+                                SizedBox(
+                                  height: 30,
+                                ),
+                                Container(
+                                  height: 14,
+                                  child: _mystate.payment >= _mystate.totalPrice
+                                      ? Text(
+                                          'Kembalian: ${numberFormat.format(_mystate.payment - _mystate.totalPrice)}',
+                                        )
+                                      : Container(),
+                                ),
+                                Container(
+                                  width: double.infinity,
+                                  child: Text(
+                                    'Pelanggan: ${_mystate.customer == '' ? 'Tanpa Nama' : _mystate.customer}',
+                                    textAlign: TextAlign.left,
                                   ),
-                                  SizedBox(
-                                    height: 30,
-                                  ),
-                                  Container(
-                                    height: 14,
+                                ),
+                                ListTile(
+                                  trailing: ElevatedButton(
+                                    style: ElevatedButton.styleFrom(
+                                        primary: _mystate.payment >=
+                                                _mystate.totalPrice
+                                            ? Colors.blue
+                                            : Colors.red),
                                     child:
                                         _mystate.payment >= _mystate.totalPrice
-                                            ? Text(
-                                                'Kembalian: ${numberFormat.format(_mystate.payment - _mystate.totalPrice)}',
-                                              )
-                                            : Container(),
-                                  ),
-                                  Container(
-                                    width: double.infinity,
-                                    child: Text(
-                                      'Pelanggan: ${_mystate.customer == '' ? 'Tanpa Nama' : _mystate.customer}',
-                                      textAlign: TextAlign.left,
-                                    ),
-                                  ),
-                                  ListTile(
-                                    trailing: ElevatedButton(
-                                      style: ElevatedButton.styleFrom(
-                                          primary: _mystate.payment >=
-                                                  _mystate.totalPrice
-                                              ? Colors.blue
-                                              : Colors.red),
-                                      child: _mystate.payment >=
+                                            ? Text('Bayar')
+                                            : Text('Utang'),
+                                    onPressed: () {
+                                      var _payStats = _mystate.payment >=
                                               _mystate.totalPrice
-                                          ? Text('Bayar')
-                                          : Text('Utang'),
-                                      onPressed: () {
-                                        var _payStats = _mystate.payment >=
-                                                _mystate.totalPrice
-                                            ? true
-                                            : false;
-                                        BlocProvider.of<CartCubit>(context)
-                                            .addCartToDB(
-                                                _mystate.payment, _payStats);
-                                        BlocProvider.of<ReceiptCubit>(context)
-                                            .getAllInvoiceItems();
-                                      },
-                                    ),
-                                    title: TextField(
-                                      keyboardType:
-                                          TextInputType.numberWithOptions(
-                                              decimal: true),
-                                      controller: _pembayaran,
-                                      onEditingComplete: () {
-                                        BlocProvider.of<CartCubit>(context)
-                                            .setPayment(
-                                                double.parse(_pembayaran.text));
-                                        FocusScope.of(context).unfocus();
-                                      },
-                                    ),
-                                    leading: Icon(Icons.attach_money),
+                                          ? true
+                                          : false;
+                                      BlocProvider.of<CartCubit>(context)
+                                          .addCartToDB(
+                                              _mystate.payment, _payStats);
+                                      Navigator.pop(context);
+                                    },
                                   ),
-                                  SizedBox(
-                                    height: 30,
+                                  title: TextField(
+                                    keyboardType:
+                                        TextInputType.numberWithOptions(
+                                            decimal: true),
+                                    controller: _pembayaran,
+                                    onEditingComplete: () {
+                                      BlocProvider.of<CartCubit>(context)
+                                          .setPayment(
+                                              double.parse(_pembayaran.text));
+                                      FocusScope.of(context).unfocus();
+                                    },
                                   ),
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceAround,
-                                    children: [
-                                      _myButton(context, _mystate,
-                                          _mystate.totalPrice),
-                                      _myButton(context, _mystate, 1000),
-                                      _myButton(context, _mystate, 2000),
-                                      _myButton(context, _mystate, 5000),
-                                    ],
-                                  ),
-                                  SizedBox(
-                                    height: 30,
-                                  ),
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceAround,
-                                    children: [
-                                      _myButton(context, _mystate, 10000),
-                                      _myButton(context, _mystate, 20000),
-                                      _myButton(context, _mystate, 50000),
-                                      _myButton(context, _mystate, 100000),
-                                    ],
-                                  )
-                                ],
-                              );
-                            },
-                          ),
+                                  leading: Icon(Icons.attach_money),
+                                ),
+                                SizedBox(
+                                  height: 30,
+                                ),
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceAround,
+                                  children: [
+                                    _myButton(
+                                        context, _mystate, _mystate.totalPrice),
+                                    _myButton(context, _mystate, 1000),
+                                    _myButton(context, _mystate, 2000),
+                                    _myButton(context, _mystate, 5000),
+                                  ],
+                                ),
+                                SizedBox(
+                                  height: 30,
+                                ),
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceAround,
+                                  children: [
+                                    _myButton(context, _mystate, 10000),
+                                    _myButton(context, _mystate, 20000),
+                                    _myButton(context, _mystate, 50000),
+                                    _myButton(context, _mystate, 100000),
+                                  ],
+                                )
+                              ],
+                            );
+                          },
                         ),
                       ),
-                    ))
-              ],
-            ),
+                    ),
+                  ))
+            ],
           ),
-        );
-      },
+        ),
+      );
+    },
+  );
+}
+
+class CartPayButton extends StatelessWidget {
+  const CartPayButton({
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 40,
+      color: Colors.blue,
+      width: double.infinity,
+      margin: EdgeInsets.all(5),
+      child: TextButton(
+          onPressed: () {
+            paymentDialog(context);
+          },
+          child: Text(
+            'BAYAR!',
+            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          )),
+    );
+  }
+}
+
+class CartTotalPrice extends StatelessWidget {
+  const CartTotalPrice({
+    Key? key,
+    required this.numberFormat,
+  }) : super(key: key);
+
+  final NumberFormat numberFormat;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+        width: double.infinity,
+        height: 30,
+        child:
+            Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 0, 0, 0),
+            child: Text('Total',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(0, 0, 20, 0),
+            child: BlocBuilder<CartCubit, CartState>(
+              builder: (context, state) {
+                var price =
+                    (BlocProvider.of<CartCubit>(context).state as CartInitial)
+                        .totalPrice;
+                return Text(
+                  '${numberFormat.format(price)}',
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                );
+              },
+            ),
+          )
+        ]));
+  }
+}
+
+class HeaderCartList extends StatelessWidget {
+  const HeaderCartList({
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(border: Border(bottom: BorderSide())),
+      padding: EdgeInsets.fromLTRB(10, 0, 10, 0),
+      child: BlocBuilder<CartCubit, CartState>(
+        builder: (context, state) {
+          var mystate = state as CartInitial;
+          String nama = mystate.customer == ''
+              ? 'Tambah Nama Pelanggan'
+              : mystate.customer;
+          return DropdownButton<String>(
+            isExpanded: true,
+            value: nama,
+            icon: const Icon(Icons.arrow_drop_down),
+            iconSize: 24,
+            underline: Container(
+              height: 2,
+            ),
+            onChanged: (String? newValue) {
+              if (newValue == nama) {
+                customerDialog(context, mystate, nama);
+                nama = newValue ?? 'Tanpa Nama';
+              } else {
+                BlocProvider.of<CartCubit>(context).clearCart();
+              }
+            },
+            items: <String>[nama, 'Clear']
+                .map<DropdownMenuItem<String>>((String value) {
+              return DropdownMenuItem<String>(
+                value: value,
+                child: Text(value),
+              );
+            }).toList(),
+          );
+        },
+      ),
     );
   }
 }
@@ -252,10 +284,14 @@ Widget _myButton(BuildContext context, CartInitial state, double value) {
   );
 }
 
-class CartList extends StatelessWidget {
-  const CartList({
+class SideCartList extends StatelessWidget {
+  const SideCartList({
+    ScrollController? this.scrollControler,
     Key? key,
-  }) : super(key: key);
+  }) : super(
+          key: key,
+        );
+  final scrollControler;
 
   @override
   Widget build(BuildContext context) {
@@ -265,6 +301,8 @@ class CartList extends StatelessWidget {
       builder: (context, state) {
         CartInitial mystate = state as CartInitial;
         return ListView.builder(
+          shrinkWrap: true,
+          controller: scrollControler,
           itemCount: mystate.cart.length,
           itemBuilder: (context, index) {
             var _cart = mystate.cart[index];
@@ -273,8 +311,12 @@ class CartList extends StatelessWidget {
                 as ProductsInitial;
             var _product = _productState.products
                 .firstWhere((element) => element.id == _productId);
+
             var _cartPrice =
                 _cart.salePrice == 0 ? _product.price : _cart.salePrice;
+            _product.price != _cart.salePrice
+                ? _cartPrice = _cart.salePrice
+                : _cartPrice = _product.price;
             var _totalPrice = _cart.quantity * _cartPrice;
 
             return Dismissible(
@@ -307,8 +349,7 @@ class CartList extends StatelessWidget {
                   ),
                 ),
                 title: Text(_product.productName),
-                subtitle:
-                    Text('${_product.price.toString()} / ${_product.uom}'),
+                subtitle: Text('$_cartPrice / ${_product.uom}'),
                 trailing: Text('${numberFormat.format(_totalPrice)}'),
               ),
             );

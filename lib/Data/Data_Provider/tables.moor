@@ -1,25 +1,24 @@
 CREATE TABLE IF NOT EXISTS products (
-  id TEXT NOT NULL, 
+  id TEXT NOT NULL PRIMARY KEY, 
   product_name TEXT NOT NULL, 
   category TEXT NOT NULL, 
   uom TEXT NOT NULL, 
   price INTEGER NOT NULL, 
   created_at INTEGER(4) NOT NULL DEFAULT (strftime('%s','now')),
-  updated_at INTEGER(4) NOT NULL DEFAULT (strftime('%s','now')),
-  PRIMARY KEY (id)
+  updated_at INTEGER(4) NOT NULL DEFAULT (strftime('%s','now'))
 );
 
 
 CREATE TABLE IF NOT EXISTS products_in_transactions (
   product_id TEXT NOT NULL REFERENCES products (id), 
-  transaction_id INTEGER NOT NULL REFERENCES sales_transactions (transaction_id), 
+  transaction_id TEXT NOT NULL REFERENCES sales_transactions (transaction_id), 
   quantity REAL NOT NULL, 
   sale_price REAL NOT NULL, 
   PRIMARY KEY (product_id, transaction_id)
 );
 
 CREATE TABLE IF NOT EXISTS sales_transactions (
-  transaction_id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, 
+  transaction_id TEXT NOT NULL PRIMARY KEY, 
   customer TEXT NOT NULL, 
   total_price REAL NOT NULL, 
   payment REAL NOT NULL, 

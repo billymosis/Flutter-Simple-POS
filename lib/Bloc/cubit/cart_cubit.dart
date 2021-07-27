@@ -1,15 +1,16 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
-import 'package:project_pos/Data/Data_Provider/Platform_Helper/shared.dart';
+import 'package:moor/moor.dart';
 import 'package:project_pos/Data/Data_Provider/database.dart';
+import 'package:uuid/uuid.dart';
 
 part 'cart_state.dart';
 
 class CartCubit extends Cubit<CartState> {
   CartCubit() : super(CartInitial(cart: [], totalPrice: 0));
 
-  SharedDatabase x = constructDb();
+  var x = SharedDatabase.x;
   List<ProductsInTransaction> _myCart = [];
   List<ProductsInTransaction> _invoiceCart = [];
   double _payment = 0;
@@ -29,7 +30,7 @@ class CartCubit extends Cubit<CartState> {
         customer: _customer));
   }
 
-  void getAllCartBySaleID(int id) async {
+  void getAllCartBySaleID(String id) async {
     _invoiceCart = await x.allCartBySaleID(id);
     print(_invoiceCart);
     emit(CartInitial(
@@ -123,18 +124,22 @@ class CartCubit extends Cubit<CartState> {
     if (_myCart.isEmpty) {
       return;
     } else {
+      var id = Uuid().v4();
       SalesTransactionsCompanion y = SalesTransactionsCompanion.insert(
+          transactionId: id,
+          createdAt: Value(DateTime.now().millisecondsSinceEpoch ~/ 1000),
+          updatedAt: Value(DateTime.now().millisecondsSinceEpoch ~/ 1000),
           totalPrice: _totalPrice,
           note: 'new',
-          customer: _customer,
+          customer: _customer == '' ? 'Tanpa Nama' : _customer,
           payment: payment,
-          paymentStatus: paymentStatus);
-      int id = await x.addSales(y);
+          paymentStatus: paymentStatus ? 1 : 0);
+      await x.addSales(y);
       List<ProductsInTransaction> zz =
           _myCart.map((e) => e = e.copyWith(transactionId: id)).toList();
       List<ProductsInTransactionsCompanion> pt =
           zz.map((e) => e.toCompanion(false)).toList();
-      x.addCartList(pt);
+      await x.addCartList(pt);
       clearCart();
     }
   }

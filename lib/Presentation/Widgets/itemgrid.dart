@@ -17,15 +17,35 @@ class ItemGrid extends StatelessWidget {
     return Container(child: BlocBuilder<ProductsCubit, ProductsState>(
       builder: (context, state) {
         var mystate = state as ProductsInitial;
-        return GridView.builder(
-          gridDelegate:
-              SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 5),
-          itemCount: mystate.products.length,
-          itemBuilder: (context, index) => _GridContainer(
-            index: index,
-            state: mystate,
-          ),
-        );
+        return mystate.products.isEmpty
+            ? Padding(
+                padding: const EdgeInsets.all(14),
+                child: Center(
+                    child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.carpenter,
+                      size: 100,
+                      color: Colors.blue,
+                    ),
+                    Text('Masih belum ada item di database.'),
+                    Text(
+                      'Silahkan masuk ke menu products lalu input dengan tombol (+) di pojok kanan bawah.',
+                      textAlign: TextAlign.center,
+                    )
+                  ],
+                )),
+              )
+            : GridView.builder(
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 5),
+                itemCount: mystate.products.length,
+                itemBuilder: (context, index) => _GridContainer(
+                  index: index,
+                  state: mystate,
+                ),
+              );
       },
     ));
   }
@@ -54,7 +74,7 @@ class _GridContainer extends StatelessWidget {
         onTap: () {
           var z = ProductsInTransactionsCompanion.insert(
               productId: state.products[index].id,
-              transactionId: 0,
+              transactionId: '',
               quantity: _counter,
               salePrice: state.products[index].price.toDouble());
           var x = (BlocProvider.of<CartCubit>(context).state as CartInitial)

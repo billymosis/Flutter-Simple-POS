@@ -5,6 +5,8 @@ import 'package:project_pos/Bloc/cubit/form_cubit.dart';
 
 import 'package:project_pos/Bloc/cubit/products_cubit.dart';
 import 'package:project_pos/Data/Data_Provider/database.dart';
+import 'package:project_pos/responsive.dart';
+import 'package:uuid/uuid.dart';
 
 class AddorEdit extends StatefulWidget {
   const AddorEdit({
@@ -37,7 +39,9 @@ class _AddorEditState extends State<AddorEdit> {
             autovalidateMode: AutovalidateMode.always,
             key: _formKey,
             child: Container(
-              margin: EdgeInsets.fromLTRB(200, 20, 200, 0),
+              margin: Responsive.isDisplayMobile(context)
+                  ? EdgeInsets.fromLTRB(20, 20, 20, 0)
+                  : EdgeInsets.fromLTRB(200, 20, 200, 0),
               child: BlocBuilder<FormCubit, FormStateCubit>(
                 builder: (context, state) {
                   return Column(
@@ -157,6 +161,7 @@ class _AddorEditState extends State<AddorEdit> {
                                           price: moor.Value(_price)))
                                   : BlocProvider.of<ProductsCubit>(context)
                                       .addProduct(ProductsCompanion(
+                                          id: moor.Value(Uuid().v4()),
                                           category: moor.Value(_category),
                                           productName: moor.Value(_productName),
                                           uom: moor.Value(_unitOfMeasurement),
